@@ -9,4 +9,4 @@ env:
   - variable: STRIPE_SECRET_KEY
     value: secrets/STRIPE_SECRET_KEY
   - variable: APP_URL
-    value: https://nowforevermoods.com
+    value: https://nowforevermoods-36897396429.us-west1.run.app/

@@ -54,7 +54,7 @@ export default function VerifyBackendPage() {
                         <div>
                             <h3 className="text-sm font-bold uppercase tracking-widest text-brand-muted mb-2">Environment</h3>
                             <p className="text-xs text-brand-black font-mono">Domain: {typeof window !== 'undefined' ? window.location.hostname : 'Server'}</p>
-                            <p className="text-xs text-brand-muted mt-1 uppercase tracking-tighter">Verified targets: nowforevermoods.com, run.app</p>
+                            <p className="text-xs text-brand-muted mt-1 uppercase tracking-tighter">Verified targets: nowforevermoods.com, nowforevermoods-36897396429.us-west1.run.app</p>
                         </div>
                     </div>
 
