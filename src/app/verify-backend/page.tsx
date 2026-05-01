@@ -54,7 +54,7 @@ export default function VerifyBackendPage() {
                         <div>
                             <h3 className="text-sm font-bold uppercase tracking-widest text-brand-muted mb-2">Environment</h3>
                             <p className="text-xs text-brand-black font-mono">Domain: {typeof window !== 'undefined' ? window.location.hostname : 'Server'}</p>
-                            <p className="text-xs text-brand-muted mt-1 uppercase tracking-tighter">Verified targets: nowforevermoods.com, hosted.app</p>
+                            <p className="text-xs text-brand-muted mt-1 uppercase tracking-tighter">Verified targets: nowforevermoods.com, run.app</p>
                         </div>
                     </div>
 
@@ -111,11 +111,11 @@ export default function VerifyBackendPage() {
                     <div className="bg-brand-surface border border-brand-line p-8 rounded-2xl">
                         <h3 className="text-xl font-serif text-white italic mb-4">Troubleshooting "[Backend Not Found]"</h3>
                         <div className="space-y-4 text-xs text-brand-black leading-relaxed">
-                            <p>If you encounter <span className="font-mono text-red-500 bg-red-500/10 px-1">Backend Not Found</span> on your <span className="font-mono">hosted.app</span> URL, it usually indicates a synchronization issue between the App Hosting load balancer and your backend resources.</p>
+                            <p>If you encounter <span className="font-mono text-red-500 bg-red-500/10 px-1">Backend Not Found</span> on your <span className="font-mono">run.app</span> URL, it usually indicates a configuration issue with your Cloud Run service.</p>
                             
                             <ul className="list-disc pl-5 space-y-2 text-brand-muted uppercase tracking-tighter">
-                                <li>Verify the <span className="text-brand-accent font-bold">Backend ID</span> in the Firebase Console matches "<span className="font-mono lowercase">nowforevermoods-web</span>".</li>
-                                <li>Check the <span className="text-brand-accent font-bold">Region</span>: Your URL specifies <span className="font-mono italic">us-central1</span>. Ensure your backend was created in this region.</li>
+                                <li>Verify the <span className="text-brand-accent font-bold">Backend ID</span> in the Cloud Console matches "<span className="font-mono lowercase">nowforevermoods</span>".</li>
+                                <li>Check the <span className="text-brand-accent font-bold">Region</span>: Your URL specifies <span className="font-mono italic">us-west1</span>. Ensure your backend was created in this region.</li>
                                 <li>Inspect the <span className="text-brand-accent font-bold">GitHub Workflow</span>: Ensure your first deployment succeeded. A failed initial build can leave the Load Balancer with no "Backend" to route to.</li>
                                 <li>Domain Mapping: If using "<span className="font-mono lowercase text-brand-accent font-bold">nowforevermoods.com</span>", ensure it is correctly associated with the backend in the App Hosting settings tab.</li>
                             </ul>

@@ -16,4 +16,4 @@ jobs:
         with:
           projectId: nowforevermoods
           serviceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          appId: projects/nowforevermoods/locations/us-central1/backends/nowforevermoods-web
+          appId: projects/nowforevermoods/locations/us-west1/backends/nowforevermoods
