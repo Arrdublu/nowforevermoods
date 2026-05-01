@@ -2,11 +2,17 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
-import firebaseConfig from '../../../../firebase-applet-config.json';
+
+const firebaseConfig = {
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+};
 
 // Initialize Client SDK on Server for faster initialization in this environment
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+const db = getFirestore(app, process.env.NEXT_PUBLIC_FIREBASE_DATABASE_ID);
 
 let stripeInstance: Stripe | null = null;
 function getStripe(): Stripe {

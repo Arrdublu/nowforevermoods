@@ -16,7 +16,7 @@ export function Navbar() {
   const db = getDb();
   const auth = getAuthService();
   const { currency, toggleCurrency } = useGeoPricing();
-  console.log("Navbar initialized, user:", auth.currentUser?.uid);
+  console.log("Navbar initialized, user:", auth?.currentUser?.uid);
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -31,6 +31,10 @@ export function Navbar() {
   const borderOpacity = useTransform(scrollY, [0, 100], isHomePage ? ["rgba(26, 26, 26, 0)", "rgba(26, 26, 26, 0.1)"] : ["rgba(26, 26, 26, 0.1)", "rgba(26, 26, 26, 0.1)"]);
 
   useEffect(() => {
+    const auth = getAuthService();
+    const db = getDb();
+    if (!auth || !db) return;
+    
     const unsub = onAuthStateChanged(auth, async (authUser) => {
       setUser(authUser);
       if (authUser) {
@@ -57,7 +61,7 @@ export function Navbar() {
   }, []);
 
   const executeGoogleLogin = async () => {
-    if (isLoggingIn) return;
+    if (isLoggingIn || !auth) return;
     setIsLoggingIn(true);
     const provider = new GoogleAuthProvider();
     try {
@@ -75,7 +79,7 @@ export function Navbar() {
     }
   };
 
-  const logout = () => signOut(auth);
+  const logout = () => auth && signOut(auth);
 
   return (
     <motion.nav 

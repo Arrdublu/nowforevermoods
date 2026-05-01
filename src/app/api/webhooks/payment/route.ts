@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import * as admin from 'firebase-admin';
 import { getFirestore } from 'firebase-admin/firestore';
-import firebaseConfig from '../../../../../firebase-applet-config.json';
 
 let dbInstance: admin.firestore.Firestore | null = null;
 function getAdminDb() {
@@ -10,14 +9,14 @@ function getAdminDb() {
         if (!admin.apps.length) {
             try {
                 admin.initializeApp({
-                    projectId: firebaseConfig.projectId
+                    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
                 });
             } catch (e) {
                 console.warn("Firebase Admin fallback init:", e);
                 admin.initializeApp();
             }
         }
-        dbInstance = getFirestore(firebaseConfig.firestoreDatabaseId);
+        dbInstance = getFirestore(process.env.NEXT_PUBLIC_FIREBASE_DATABASE_ID);
     }
     return dbInstance;
 }

@@ -46,8 +46,9 @@ export function AdminDashboard() {
   const [editMeta, setEditMeta] = useState({ title: '', description: '', category: 'editorial' });
 
   useEffect(() => {
-    if (!isAuthorized) return;
-    const qPortfolio = query(collection(getDb(), "portfolio_items"), orderBy("timestamp", "desc"));
+    const database = getDb();
+    if (!isAuthorized || !database) return;
+    const qPortfolio = query(collection(database, "portfolio_items"), orderBy("timestamp", "desc"));
     const unsub = onSnapshot(qPortfolio, (snapshot) => {
       setPortfolioItems(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     }, (error) => {
@@ -59,7 +60,8 @@ export function AdminDashboard() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const user = auth.currentUser;
+      if (!auth || !db) return;
+      const user = auth?.currentUser;
       if (!user) {
         router.push("/");
         return;
@@ -85,7 +87,7 @@ export function AdminDashboard() {
   }, [router]);
 
   useEffect(() => {
-    if (!isAuthorized) return;
+    if (!isAuthorized || !db) return;
 
     // Fetch Bookings
     const qBookings = query(collection(db, "bookings"), orderBy("createdAt", "desc"));
@@ -100,7 +102,7 @@ export function AdminDashboard() {
   }, [isAuthorized]);
 
   useEffect(() => {
-    if (!isAuthorized) return;
+    if (!isAuthorized || !db) return;
 
     setLoading(true);
     let qTransactions = query(collection(db, "transactions"), orderBy("createdAt", "desc"));

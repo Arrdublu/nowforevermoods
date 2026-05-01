@@ -55,7 +55,7 @@ export function BookingForm({ isOpen, onClose, selectedPackage, currency }: Book
   const [bookedDates, setBookedDates] = useState<Date[]>([]);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || !db) return;
     
     let isMounted = true;
     const fetchBookedDates = async () => {
@@ -107,10 +107,10 @@ export function BookingForm({ isOpen, onClose, selectedPackage, currency }: Book
   const needsBeautyConsult = watch("needsBeautyConsult");
 
   const handleBooking = async (values: BookingValues) => {
-    if (!selectedPackage) return;
+    if (!selectedPackage || !auth || !db) return;
     
     // Manual validation for guests
-    if (!auth.currentUser) {
+    if (!auth?.currentUser) {
       if (!values.fullName || values.fullName.length < 2) {
         alert("System Error: Identity data required for guest checkout.");
         return;
@@ -123,7 +123,7 @@ export function BookingForm({ isOpen, onClose, selectedPackage, currency }: Book
 
     setLoading(true);
     try {
-      let currentUser = auth.currentUser;
+      let currentUser = auth?.currentUser;
       
       // If no user, try to sign in anonymously to keep track of the booking session
       if (!currentUser) {
@@ -232,7 +232,7 @@ export function BookingForm({ isOpen, onClose, selectedPackage, currency }: Book
 
   const onConfirm = (values: BookingValues) => {
     // Manual validation for guests
-    if (!auth.currentUser) {
+    if (!auth || !auth.currentUser) {
       if (!values.fullName || values.fullName.length < 2) {
         alert("System Error: Identity data required for guest checkout.");
         return;
@@ -246,7 +246,7 @@ export function BookingForm({ isOpen, onClose, selectedPackage, currency }: Book
   };
 
   const executeGoogleLogin = async () => {
-    if (loading) return;
+    if (loading || !auth) return;
     setLoading(true);
     try {
       const { signInWithPopup, GoogleAuthProvider } = await import("firebase/auth");
@@ -275,7 +275,7 @@ export function BookingForm({ isOpen, onClose, selectedPackage, currency }: Book
           </DialogHeader>
           
           <form className="grid gap-8 p-10" onSubmit={handleSubmit(handleBooking)}>
-            {!auth.currentUser && (
+            {!auth?.currentUser && (
               <div className="space-y-4">
                 <div className="flex flex-col gap-4 p-6 bg-brand-bg/50 border border-brand-line">
                   <p className="text-[10px] uppercase tracking-widest font-bold text-brand-muted mb-2">Guest Identity Portfolio</p>
@@ -447,7 +447,7 @@ export function BookingForm({ isOpen, onClose, selectedPackage, currency }: Book
                 amount={activeBooking.amount} 
                 currency={currency} 
                 bookingId={activeBooking.id} 
-                userId={auth.currentUser?.uid || 'guest'}
+                userId={auth?.currentUser?.uid || 'guest'}
                 prefetchedClientSecret={activeBooking.clientSecret}
                 onSuccess={() => {
                   setTimeout(() => {
