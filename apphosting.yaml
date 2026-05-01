@@ -1,0 +1,12 @@
+version: v1
+runConfig:
+  minInstances: 0
+  maxInstances: 10
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 512
+env:
+  - variable: STRIPE_SECRET_KEY
+    value: secrets/STRIPE_SECRET_KEY
+  - variable: APP_URL
+    value: https://nowforevermoods.com

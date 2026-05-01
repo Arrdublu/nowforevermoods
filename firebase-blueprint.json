@@ -1,0 +1,121 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User account information and role.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "admin"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "email", "role"]
+    },
+    "Package": {
+      "title": "Booking Package",
+      "description": "Details of signature sessions or wedding collections.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "type": { "type": "string", "enum": ["signature", "wedding"] },
+        "usdPrice": { "type": "number" },
+        "jmdPrice": { "type": "number" },
+        "deliverables": { "type": "array" },
+        "isActive": { "type": "boolean" }
+      },
+      "required": ["name", "usdPrice", "jmdPrice", "type"]
+    },
+    "Booking": {
+      "title": "Client Booking",
+      "description": "Booking request from a user.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string", "format": "email" },
+        "userName": { "type": "string" },
+        "packageId": { "type": "string" },
+        "packageName": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "cancelled"] },
+        "paymentStatus": { "type": "string", "enum": ["unpaid", "paid"] },
+        "paymentMode": { "type": "string", "enum": ["full", "deposit"] },
+        "amountTotal": { "type": "number" },
+        "currency": { "type": "string" },
+        "notes": { "type": "string" },
+        "needsBeautyConsult": { "type": "boolean" },
+        "isGuest": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "packageId", "date", "status"]
+    },
+    "Transaction": {
+      "title": "Payment Transaction",
+      "description": "Record of a payment via Stripe.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "bookingId": { "type": "string" },
+        "stripeSessionId": { "type": "string" },
+        "amount": { "type": "number" },
+        "currency": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "stripeSessionId", "amount", "status"]
+    },
+    "PortfolioItem": {
+      "title": "Portfolio Item",
+      "description": "Image or Video shown in the portfolio.",
+      "type": "object",
+      "properties": {
+        "url": { "type": "string" },
+        "type": { "type": "string", "enum": ["photo", "video"] },
+        "category": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["url", "type", "category", "title", "description"]
+    },
+    "Availability": {
+      "title": "Date Availability",
+      "description": "Status of a specific date for booking.",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "blocked"] }
+      },
+      "required": ["date", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles and permissions."
+    },
+    "/packages/{packageId}": {
+      "schema": "Package",
+      "description": "Available booking packages."
+    },
+    "/bookings/{bookingId}": {
+      "schema": "Booking",
+      "description": "Client bookings."
+    },
+    "/availability/{availabilityId}": {
+      "schema": "Availability",
+      "description": "Publicly visible booked dates."
+    },
+    "/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "Payment logs from Stripe."
+    },
+    "/portfolio/{itemId}": {
+      "schema": "PortfolioItem",
+      "description": "Portfolio media assets."
+    }
+  }
+}

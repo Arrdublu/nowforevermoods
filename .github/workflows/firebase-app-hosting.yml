@@ -1,0 +1,19 @@
+name: Deploy to Firebase App Hosting
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to Firebase
+        uses: FirebaseExtended/action-app-hosting-deploy@v0
+        with:
+          projectId: nowforevermoods
+          serviceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          appId: projects/nowforevermoods/locations/us-central1/backends/nowforevermoods-web
