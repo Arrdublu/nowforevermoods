@@ -61,7 +61,7 @@ export function CinematicHero({ imageUrl: initialImage, videoUrl: initialVideo, 
           }
         }
       } catch (e) {
-        console.error("Failed to fetch dynamic hero:", e);
+        console.error("Failed to fetch dynamic hero:", e?.message || e);
       } finally {
         if (isMounted) setIsLoading(false);
       }

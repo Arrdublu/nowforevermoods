@@ -217,7 +217,7 @@ export function AdminMediaUploader({
     try {
        // Best effort to delete from storage.
        const fileRef = ref(getStorageService(), url);
-       await deleteObject(fileRef).catch(e => console.log('Storage deletion skipped or failed:', e));
+       await deleteObject(fileRef).catch(e => console.log('Storage deletion skipped or failed:', e?.message || e));
        
        await deleteDoc(doc(getDb(), "portfolio_items", id));
     } catch (error) {

@@ -121,7 +121,7 @@ function safeStringify(obj: any): string {
   }
 }
 
-export function handleFirestoreError(error: any, operation: FirestoreErrorInfo['operationType'], path: string | null = null): never {
+export function handleFirestoreError(error: any, operation: FirestoreErrorInfo['operationType'], path: string | null = null): never | void {
   const authUser = getAuthService().currentUser;
   
   let safeErrorMsg = "Unknown error";
@@ -139,6 +139,8 @@ export function handleFirestoreError(error: any, operation: FirestoreErrorInfo['
   } catch (e) {
     safeErrorMsg = "Critical error during error handling";
   }
+
+  const isOffline = safeErrorMsg.includes("client is offline") || safeErrorMsg.includes("network-request-failed");
 
   const info: FirestoreErrorInfo = {
     error: safeErrorMsg,
@@ -158,6 +160,12 @@ export function handleFirestoreError(error: any, operation: FirestoreErrorInfo['
   };
 
   const serialized = safeStringify(info);
+  
+  if (isOffline) {
+    console.warn('Firestore Offline Error:', serialized);
+    return; // Don't throw to avoid crashing the app purely for offline status
+  }
+  
   console.error('Firestore Error Payload:', serialized);
   throw new Error(serialized);
 }

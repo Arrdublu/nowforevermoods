@@ -49,8 +49,13 @@ export function Navbar() {
           } else {
             setIsAdmin(userDoc.data().role === 'admin');
           }
-        } catch (error) {
-          handleFirestoreError(error, 'get', `users/${authUser.uid}`);
+        } catch (error: any) {
+          if (error?.message?.includes("client is offline") || error?.message?.includes("network-request-failed")) {
+            console.warn("Offline error during role check, skipping.", error);
+            setIsAdmin(false);
+          } else {
+            handleFirestoreError(error, 'get', `users/${authUser.uid}`);
+          }
         }
       } else {
         setIsAdmin(false);

@@ -88,7 +88,7 @@ function BookingFormContent({ isOpen, onClose, selectedPackage, currency }: Book
       setIsPaymentOpen(false);
       setSuccessMessage("Your booking has been confirmed successfully (via Simulation Mode)! We look forward to your session.");
     } catch (err) {
-      console.error(err);
+      console.error(err?.message || err);
       alert("Simulation failed, please try again.");
     } finally {
       setLoading(false);
@@ -115,7 +115,7 @@ function BookingFormContent({ isOpen, onClose, selectedPackage, currency }: Book
         });
         if (isMounted) setBookedDates(dates);
       } catch (err) {
-        console.error("Failed to fetch booked dates", err);
+        console.error("Failed to fetch booked dates", err?.message || err);
         // Only throw if missing permissions, otherwise just log
         if (err instanceof Error && err.message.includes('permission')) {
           handleFirestoreError(err, 'list', 'availability');
@@ -256,7 +256,7 @@ function BookingFormContent({ isOpen, onClose, selectedPackage, currency }: Book
             throw new Error(data.error || "Payment terminal initialization failed");
           }
         } catch (payErr: any) {
-          console.error("Payment Intent Error:", payErr);
+          console.error("Payment Intent Error:", payErr?.message || payErr);
           let msg = payErr.message || "";
           if (msg.includes("Invalid API Key") || msg.includes("STRIPE") || msg.includes("secrets/") || msg.includes("missing or invalid")) {
             setSimulatedDocId(docRef.id);
@@ -283,7 +283,7 @@ function BookingFormContent({ isOpen, onClose, selectedPackage, currency }: Book
       } catch (e) {}
 
     } catch (error) {
-      console.error("Booking error:", error);
+      console.error("Booking error:", error?.message || error);
       alert("System failure. Please refresh and try again.");
     } finally {
       setLoading(false);
@@ -321,7 +321,7 @@ function BookingFormContent({ isOpen, onClose, selectedPackage, currency }: Book
       await signInWithPopup(auth, new GoogleAuthProvider());
     } catch (error: any) {
       if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
-        console.error("Login failed:", error);
+        console.error("Login failed:", error?.message || error);
       }
       if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
         alert("The authentication popup was blocked. Please pop this preview out into a new tab.");
@@ -522,7 +522,7 @@ function BookingFormContent({ isOpen, onClose, selectedPackage, currency }: Book
 
               <Button 
                 type="submit"
-                className="bg-brand-black text-white hover:bg-zinc-800 rounded-none h-16 uppercase tracking-[0.4em] text-[10px] font-bold shadow-lg disabled:opacity-50"
+                className="bg-[#111111] text-[#ffffff] font-sans uppercase tracking-[0.1em] px-8 py-3 h-auto border border-[#333333] rounded transition-all duration-300 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] hover:bg-[#2a2a2a] hover:border-[#555555] hover:-translate-y-px active:translate-y-px active:bg-[#000000] disabled:opacity-50 disabled:pointer-events-none"
                 disabled={loading || !termsAccepted}
               >
                 {loading ? <Loader2 className="animate-spin" /> : "Secure Booking"}

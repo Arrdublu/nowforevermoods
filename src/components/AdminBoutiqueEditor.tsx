@@ -68,7 +68,7 @@ export function AdminBoutiqueEditor() {
             });
             if (fileInputRef.current) fileInputRef.current.value = '';
         } catch (e) {
-            console.error("Failed to add product", e);
+            console.error("Failed to add product", e?.message || e);
         }
     };
 
@@ -77,7 +77,7 @@ export function AdminBoutiqueEditor() {
         try {
             await deleteDoc(doc(db, "products", id));
         } catch (e) {
-            console.error("Failed to delete product", e);
+            console.error("Failed to delete product", e?.message || e);
         }
     };
 
@@ -131,7 +131,7 @@ export function AdminBoutiqueEditor() {
                                             const task = uploadBytesResumable(fileRef, file);
                                             
                                             task.on("state_changed", null, (err) => {
-                                                console.error("Upload failed", err);
+                                                console.error("Upload failed", err?.message || err);
                                                 setUploading(false);
                                                 alert("Upload failed");
                                             }, async () => {
@@ -140,7 +140,7 @@ export function AdminBoutiqueEditor() {
                                                 setUploading(false);
                                             });
                                         } catch (error) {
-                                            console.error("Storage error:", error);
+                                            console.error("Storage error:", error?.message || error);
                                             setUploading(false);
                                             alert("Upload initialization failed");
                                         }

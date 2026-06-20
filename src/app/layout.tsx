@@ -83,10 +83,22 @@ if (typeof window !== 'undefined') {
           }
           if (arg && typeof arg === 'object') {
             try {
-              JSON.stringify(arg);
-              return arg;
+              const cache = new WeakSet();
+              const str = JSON.stringify(arg, (key, value) => {
+                if (typeof value === 'object' && value !== null) {
+                  if (cache.has(value)) {
+                    return '[Circular]';
+                  }
+                  cache.add(value);
+                  if (value.constructor && (value.constructor.name === 'Y' || value.constructor.name === 'Ka' || value.constructor.name === 'Firestore')) {
+                    return '[Firestore Object]';
+                  }
+                }
+                return value;
+              });
+              return JSON.parse(str);
             } catch (e) {
-              return "[Circular or Non-Serializable Object Suppressed]";
+              return "[Complex Object Suppressed]";
             }
           }
           return arg;

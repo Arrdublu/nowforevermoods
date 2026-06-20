@@ -10,7 +10,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
+const stripePromise = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY 
+  ? loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
+  : Promise.resolve(null);
 
 function CheckoutForm({ amount, currency, onTableSuccess }: { amount: number, currency: string, onTableSuccess: () => void }) {
   const stripe = useStripe();

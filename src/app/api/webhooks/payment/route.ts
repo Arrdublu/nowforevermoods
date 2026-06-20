@@ -106,7 +106,7 @@ export async function POST(req: Request) {
                     }
                 }
             } catch (error) {
-                console.error("Failed to sync order payment:", error);
+                console.error("Failed to sync order payment:", error?.message || error);
             }
         } else if (bookingId) {
             try {
@@ -132,7 +132,7 @@ export async function POST(req: Request) {
                 const bookingData = bookingSnapshot.data();
                 
                 await db.collection('mail').add({
-                    to: ['hi@arrdublu.us', 'ioka@arrdublu.us'],
+                    to: ['hi@arrdublu.us', 'ioka@arrdublu.us', 'admin@nowforevermoods.com'],
                     message: {
                         subject: `Payment Secured: ${bookingData?.packageName || 'Session'}`,
                         html: `
@@ -145,38 +145,55 @@ export async function POST(req: Request) {
                     }
                 });
 
-                if (bookingData?.packageId === 'beauty-architecture') {
-                    if (bookingData?.userEmail) {
+                if (bookingData?.userEmail) {
+                    if (bookingData?.packageId === 'beauty-architecture') {
                         await db.collection('mail').add({
                             to: [bookingData.userEmail],
                             message: {
-                                subject: `Beauty Architecture: Prep & Glow Guide`,
+                                subject: `Beauty Architecture Initiation: Welcome & Next Steps`,
                                 html: `
-                                    <h2>Your Beauty Architecture Session is Confirmed</h2>
-                                    <p>Hi ${bookingData?.userName || 'there'},</p>
-                                    <p>Your payment is secure and your private studio time is reserved. Get ready for an incredible session.</p>
+                                    <h2>Welcome to Beauty Architecture</h2>
+                                    <p>Hi ${bookingData?.userName || 'Client'},</p>
+                                    <p>Your payment has been successfully processed and your initiation into Beauty Architecture is confirmed.</p>
+                                    <h3>Step 1: The Blueprint Questionnaire</h3>
+                                    <p>To begin our journey, please complete your detailed creative blueprint. This allows us to understand your aesthetic core before our first session.</p>
+                                    <p><a href="https://nowforevermoods.com/blueprint" style="display: inline-block; padding: 10px 20px; background-color: #111; color: #fff; text-decoration: none; border-radius: 4px;">Complete Questionnaire</a></p>
+                                    <h3>What happens next?</h3>
+                                    <p>Once you submit your blueprint, we will review it and follow up within 48 hours to schedule our first direct consultation. We look forward to building with you.</p>
                                     <div style="background-color: #f9f9f9; padding: 15px; margin: 20px 0; border: 1px solid #eee;">
                                         <h3 style="margin-top: 0;">Receipt of Payment</h3>
                                         <p><strong>Amount Paid:</strong> ${session.currency?.toUpperCase()} ${(session.amount_total ? session.amount_total / 100 : 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                                         <p><strong>Package:</strong> ${bookingData?.packageName}</p>
                                     </div>
-                                    <h3>Maintaining the Glow (Mini-Guide)</h3>
-                                    <ul>
-                                        <li><strong>Exfoliate lightly</strong> 24-48 hours before your session (no harsh scrubs).</li>
-                                        <li><strong>Hydrate intensely</strong> — drink plenty of water starting today.</li>
-                                        <li><strong>Rest well</strong> the night before.</li>
-                                        <li>Arrive with a clean, freshly moisturized face.</li>
-                                    </ul>
-                                    <p>We'll take care of the full skin prep and editorial makeup application.</p>
-                                    <p>See you in the studio!</p>
-                                    <p>— Ioka & Arrdublu</p>
+                                    <p>— Now Forever Moods</p>
+                                `
+                            }
+                        });
+                    } else {
+                        await db.collection('mail').add({
+                            to: [bookingData.userEmail],
+                            message: {
+                                subject: `Session Confirmed: ${bookingData?.packageName || 'Photography Session'}`,
+                                html: `
+                                    <h2>Your Session is Confirmed</h2>
+                                    <p>Hi ${bookingData?.userName || 'there'},</p>
+                                    <p>Thank you for booking with us! Your payment has been received and your session is confirmed.</p>
+                                    <div style="background-color: #f9f9f9; padding: 15px; margin: 20px 0; border: 1px solid #eee;">
+                                        <h3 style="margin-top: 0;">Receipt of Payment</h3>
+                                        <p><strong>Amount Paid:</strong> ${session.currency?.toUpperCase()} ${(session.amount_total ? session.amount_total / 100 : 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                                        <p><strong>Package:</strong> ${bookingData?.packageName}</p>
+                                    </div>
+                                    <h3>Next Steps</h3>
+                                    <p>We will be in touch shortly to coordinate exact timing, styling, and location details if we haven't already.</p>
+                                    <p>We're excited to create something beautiful together!</p>
+                                    <p>— Now Forever Moods</p>
                                 `
                             }
                         });
                     }
                 }
             } catch (error) {
-                console.error("Failed to sync payment:", error);
+                console.error("Failed to sync payment:", error?.message || error);
             }
         }
     } else if (event.type === "payment_intent.succeeded") {
@@ -202,7 +219,7 @@ export async function POST(req: Request) {
                     updatedAt: admin.firestore.Timestamp.now(),
                 });
             } catch (error) {
-                console.error("Failed to sync payment intent:", error);
+                console.error("Failed to sync payment intent:", error?.message || error);
             }
         }
     }

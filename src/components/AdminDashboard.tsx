@@ -37,6 +37,8 @@ import {
   Trash2,
   CheckCircle2,
   Loader2,
+  Mail,
+  Send,
 } from "lucide-react";
 import { format, startOfDay, endOfDay } from "date-fns";
 import { useRouter } from "next/navigation";
@@ -159,6 +161,8 @@ export function AdminDashboard() {
            packageId: typeof data.packageId === 'string' ? data.packageId : "",
            packageName: typeof data.packageName === 'string' ? data.packageName : "",
            userId: typeof data.userId === 'string' ? data.userId : "",
+           userEmail: typeof data.userEmail === 'string' ? data.userEmail : "",
+           userName: typeof data.userName === 'string' ? data.userName : "",
            status: typeof data.status === 'string' ? data.status : "",
            date: typeof data.date === 'string' ? data.date : "",
            time: typeof data.time === 'string' ? data.time : "",
@@ -231,6 +235,83 @@ export function AdminDashboard() {
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   const [deletingBookingId, setDeletingBookingId] = useState<string | null>(null);
 
+  // Email Ops
+  const [commsBooking, setCommsBooking] = useState<any>(null);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [customSubject, setCustomSubject] = useState("");
+  const [customBody, setCustomBody] = useState("");
+
+  const handleSendEmail = async (templateId: string) => {
+    if (!commsBooking || !commsBooking.userEmail) {
+       alert("No user email address found for this booking.");
+       return;
+    }
+    setIsSendingEmail(true);
+    try {
+      let subject = "";
+      let html = "";
+      const userName = commsBooking.userName || 'Client';
+
+      if (templateId === 'confirmation') {
+         subject = `Session Confirmed: ${commsBooking.packageName}`;
+         html = `
+            <h2>Your Session is Confirmed</h2>
+            <p>Hi ${userName},</p>
+            <p>Thank you for booking with us! Your session is confirmed and payment has been verified.</p>
+            <p>We will be in touch shortly to coordinate exact timing, styling, and location details if we haven't already. We're excited to create something beautiful together!</p>
+            <p>— Now Forever Moods</p>
+         `;
+      } else if (templateId === 'questionnaire') {
+         subject = `Beauty Architecture Initiation: Welcome & Next Steps`;
+         html = `
+            <h2>Welcome to Beauty Architecture</h2>
+            <p>Hi ${userName},</p>
+            <p>Your payment has been successfully processed and your initiation into Beauty Architecture is confirmed.</p>
+            <h3>Step 1: The Blueprint Questionnaire</h3>
+            <p>To begin our journey, please complete your detailed creative blueprint. This allows us to understand your aesthetic core before our first session.</p>
+            <p><a href="https://nowforevermoods.com/blueprint" style="display: inline-block; padding: 10px 20px; background-color: #111; color: #fff; text-decoration: none; border-radius: 4px;">Complete Questionnaire</a></p>
+            <p>Once you submit your blueprint, we will review it and follow up within 48 hours to schedule our first direct consultation. We look forward to building with you.</p>
+            <p>— Now Forever Moods</p>
+         `;
+      } else if (templateId === 'reminder') {
+         subject = `Session Reminder: Upcoming Shoot`;
+         html = `
+            <h2>Session Reminder</h2>
+            <p>Hi ${userName},</p>
+            <p>This is a quick reminder for your upcoming session taking place soon. Please ensure you have reviewed all prep instructions.</p>
+            <p>We look forward to creating with you.</p>
+            <p>— Now Forever Moods</p>
+         `;
+      } else if (templateId === 'gallery') {
+         subject = `Your Gallery is Ready - Now Forever Moods`;
+         html = `
+            <h2>Your Gallery is Ready</h2>
+            <p>Hi ${userName},</p>
+            <p>Your post-session deliverables are now ready for viewing. We loved working on your project!</p>
+            <p>We'll supply your access link in a separate direct message or you can log into your client portal.</p>
+            <p>— Now Forever Moods</p>
+         `;
+      } else if (templateId === 'custom') {
+         subject = customSubject;
+         html = `<p>Hi ${userName},</p><p>${customBody.replace(/\n/g, '<br/>')}</p><p>— Now Forever Moods</p>`;
+      }
+
+      await addDoc(collection(db, "mail"), {
+        to: [commsBooking.userEmail],
+        message: { subject, html }
+      });
+      alert("Communication dispatched and added to queue successfully.");
+      setCommsBooking(null);
+      setCustomSubject("");
+      setCustomBody("");
+    } catch (e) {
+      console.error(e?.message || e);
+      alert("Failed to enqueue email dispatch.");
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
+
   const handleDeleteSanitized = async () => {
     const sanitizedBookings = bookings.filter((b) => b.status === "sanitized");
     if (sanitizedBookings.length === 0) {
@@ -270,7 +351,7 @@ export function AdminDashboard() {
       }
       alert(`Purge complete. ${count} sanitized records removed.`);
     } catch (err) {
-      console.error("Bulk delete failed:", err);
+      console.error("Bulk delete failed:", err?.message || err);
       alert("Critical: Purge process encountered an error.");
     } finally {
       setIsBulkDeleting(false);
@@ -296,7 +377,7 @@ export function AdminDashboard() {
 
       await deleteDoc(doc(db, "bookings", bookingId));
     } catch (err) {
-      console.error(err);
+      console.error(err?.message || err);
       let errorMsg = "An error occurred during deletion.";
       if (err instanceof Error) {
          try {
@@ -530,6 +611,15 @@ export function AdminDashboard() {
                             <Button
                               variant="outline"
                               size="sm"
+                              onClick={() => setCommsBooking(booking)}
+                              className="border-brand-line text-brand-black hover:bg-brand-surface rounded-none text-[9px] uppercase tracking-widest font-bold h-7"
+                            >
+                              <Mail className="h-3 w-3 mr-1" />
+                              Comms
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
                               onClick={() => handleDeleteBooking(booking.id)}
                               disabled={deletingBookingId === booking.id}
                               className="border-red-200 text-red-600 hover:bg-red-50 rounded-none text-[9px] uppercase tracking-widest font-bold h-7 disabled:opacity-50"
@@ -582,6 +672,101 @@ export function AdminDashboard() {
           </div>
         )}
       </main>
+
+      {/* Email Operations Dialog */}
+      {commsBooking && (
+        <Dialog open={!!commsBooking} onOpenChange={(open) => {
+          if (!open) {
+             setCommsBooking(null);
+             setCustomSubject("");
+             setCustomBody("");
+          }
+        }}>
+          <DialogContent className="bg-brand-surface border-brand-line text-brand-text sm:max-w-[500px] rounded-3xl p-8 max-h-[85vh] overflow-y-auto">
+            <DialogHeader className="mb-4">
+              <DialogTitle className="font-serif text-2xl text-brand-black font-light">Email Operations</DialogTitle>
+              <DialogDescription className="text-[10px] uppercase font-bold tracking-widest text-brand-muted mt-1">
+                Dispatch comms for {commsBooking.packageName}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-6">
+               {!commsBooking.userEmail && (
+                 <div className="bg-red-50 text-red-600 p-3 text-xs border border-red-100 rounded">
+                   <ShieldAlert className="inline h-4 w-4 mr-2" />
+                   No email address associated with this booking. Overrides disabled.
+                 </div>
+               )}
+
+               <div className={!commsBooking.userEmail ? "opacity-50 pointer-events-none" : ""}>
+                  <p className="text-[10px] text-brand-muted mb-3 font-bold uppercase tracking-[0.2em]">Standard Templates</p>
+                  <div className="grid grid-cols-1 gap-2 border border-brand-line p-4 bg-white">
+                     <Button 
+                        onClick={() => handleSendEmail('confirmation')}
+                        disabled={isSendingEmail}
+                        variant="outline"
+                        className="justify-start rounded-none border-brand-line text-brand-black hover:bg-brand-bg text-[11px] h-9"
+                     >
+                       <Mail className="h-4 w-4 mr-3 text-brand-muted" /> Resend Confirmation
+                     </Button>
+                     {commsBooking.packageId === 'beauty-architecture' && (
+                       <Button 
+                          onClick={() => handleSendEmail('questionnaire')}
+                          disabled={isSendingEmail}
+                          variant="outline"
+                          className="justify-start rounded-none border-brand-line text-brand-black hover:bg-brand-bg text-[11px] h-9"
+                       >
+                         <Mail className="h-4 w-4 mr-3 text-brand-muted" /> Resend Questionnaire Link
+                       </Button>
+                     )}
+                     <Button 
+                        onClick={() => handleSendEmail('reminder')}
+                        disabled={isSendingEmail}
+                        variant="outline"
+                        className="justify-start rounded-none border-brand-line text-brand-black hover:bg-brand-bg text-[11px] h-9"
+                     >
+                       <Mail className="h-4 w-4 mr-3 text-brand-muted" /> Session Reminder
+                     </Button>
+                     <Button 
+                        onClick={() => handleSendEmail('gallery')}
+                        disabled={isSendingEmail}
+                        variant="outline"
+                        className="justify-start rounded-none border-brand-line text-brand-black hover:bg-brand-bg text-[11px] h-9"
+                     >
+                       <ImageIcon className="h-4 w-4 mr-3 text-brand-muted" /> Post-Session Gallery Link
+                     </Button>
+                  </div>
+               </div>
+
+               <div className={`pt-4 border-t border-brand-line ${!commsBooking.userEmail ? "opacity-50 pointer-events-none" : ""}`}>
+                  <p className="text-[10px] text-brand-muted mb-3 font-bold uppercase tracking-[0.2em]">Custom Dispatch</p>
+                  <div className="space-y-3">
+                     <Input 
+                       placeholder="Subject" 
+                       value={customSubject}
+                       onChange={e => setCustomSubject(e.target.value)}
+                       className="rounded-none bg-white border-brand-line text-sm h-10"
+                     />
+                     <textarea 
+                       placeholder="Message body..."
+                       value={customBody}
+                       onChange={e => setCustomBody(e.target.value)}
+                       className="w-full h-32 p-3 bg-white border border-brand-line text-sm focus:outline-none focus:border-brand-accent resize-none placeholder:text-brand-muted"
+                     />
+                     <Button 
+                       onClick={() => handleSendEmail('custom')}
+                       disabled={isSendingEmail || !customSubject || !customBody}
+                       className="w-full rounded-none bg-brand-black text-white hover:bg-zinc-800 uppercase tracking-widest text-[10px] font-bold h-10 transition-colors"
+                     >
+                       {isSendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Send className="h-3 w-3 mr-2" /> Dispatch Custom Message</>}
+                     </Button>
+                  </div>
+               </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
     </div>
   );
 }
