@@ -58,7 +58,7 @@ export default function AdminLoginPage() {
       // Let the onAuthStateChanged effect handle the redirect and role checking
     } catch (err: any) {
       if (err.code !== "auth/popup-closed-by-user" && err.code !== "auth/cancelled-popup-request") {
-        console.error("Login failed", err);
+        console.error("Login failed", err?.message || String(err));
         setError(err.message || "Authentication failed. Please try again.");
       } else if (err.code === "auth/cancelled-popup-request" || err.code === "auth/popup-closed-by-user") {
         setError("Login popup closed. Note: If you are in a preview iframe, you may need to open this app in a new tab.");

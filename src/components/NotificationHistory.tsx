@@ -94,7 +94,7 @@ export function NotificationHistory() {
       setMails(dbMails);
       setLoading(false);
     }, (error) => {
-      console.error("Firestore read allowed but subscription failed, utilizing mock fallbacks:", error);
+      console.error("Firestore read allowed but subscription failed, utilizing mock fallbacks:", error instanceof Error ? error.message : String(error));
       handleFirestoreError(error, "get", "mail");
       setLoading(false);
     });

@@ -35,7 +35,7 @@ export default function BoutiquePage() {
 
             window.location.href = `/boutique/success?session_id=SIMULATED_${docRefId}`;
         } catch (e) {
-            console.error(e);
+            console.error(e instanceof Error ? e.message : String(e));
             alert("Simulation failed, please try again.");
         } finally {
             setCheckoutLoadingId(null);
@@ -112,7 +112,7 @@ export default function BoutiquePage() {
                 alert("Failed to initiate checkout");
             }
         } catch (e: any) {
-            console.error(e);
+            console.error(e?.message || String(e));
             const msg = e.message || "";
             if (msg.includes("Stripe API Key") || msg.includes("STRIPE") || msg.includes("secrets/")) {
                 setStripeKeyMissingError(true);

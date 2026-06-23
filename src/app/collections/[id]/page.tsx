@@ -54,7 +54,7 @@ export default function PackageDetailsPage() {
           console.error("No such package in Firestore!");
         }
       } catch (error) {
-        console.error("Error fetching package:", error);
+        console.error("Error fetching package:", error instanceof Error ? error.message : String(error));
       } finally {
         setLoading(false);
       }

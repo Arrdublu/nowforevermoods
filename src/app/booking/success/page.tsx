@@ -32,7 +32,7 @@ export default function Page() {
       await linkWithPopup(user, provider);
       setClaimed(true);
     } catch (error: any) {
-      console.error("Failed to link account:", error);
+      console.error("Failed to link account:", error?.message || String(error));
       if (error.code === 'auth/credential-already-in-use') {
         alert("This Google account is already linked to another profile. Please sign in normally.");
       } else {

@@ -32,11 +32,17 @@ export function getDb(): Firestore {
      const appInstance = getAppInstance();
      const dbId = firebaseConfig.firestoreDatabaseId || "(default)";
      try {
-       // Standard initialization is preferred
-       db = getFirestore(appInstance, dbId);
+       // Initialize Firestore with experimental long polling to bypass proxy/iframe WebSocket blockades
+       db = initializeFirestore(appInstance, {
+         experimentalAutoDetectLongPolling: true
+       }, dbId);
      } catch (e) {
-       console.warn("Retrying Firestore initialization with fallback...");
-       db = getFirestore(appInstance);
+       console.warn("Retrying Firestore initialization with fallback...", e);
+       try {
+         db = getFirestore(appInstance, dbId);
+       } catch (err) {
+         db = getFirestore(appInstance);
+       }
      }
   }
   return db;

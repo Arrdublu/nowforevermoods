@@ -184,7 +184,7 @@ export default function BeautyArchitecturePage() {
             }
 
         } catch (error: any) {
-            console.error(error);
+            console.error(error?.message || String(error));
             const msg = error.message || "";
             if (msg.includes("Stripe API Key") || msg.includes("STRIPE") || msg.includes("secrets/")) {
                 setStripeKeyMissingError(true);

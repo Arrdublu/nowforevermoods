@@ -73,6 +73,37 @@ if (typeof window !== 'undefined') {
   const methods = ['log', 'warn', 'error', 'info', 'debug'];
   // Keep native reference if available
   const nativeLog = console._log || console.log;
+
+  const getCircularReplacer = () => {
+    const seen = new WeakSet();
+    return (key, value) => {
+      if (typeof value === 'object' && value !== null) {
+        if (seen.has(value)) {
+          return '[Circular]';
+        }
+        seen.add(value);
+        if (value.constructor) {
+          const name = value.constructor.name;
+          if (
+            name === 'Y' ||
+            name === 'Ka' ||
+            name === 'Firestore' ||
+            name === 'Auth' ||
+            name === 'FirebaseAppImpl' ||
+            name === 'DocumentReference' ||
+            name === 'Query' ||
+            name === 'CollectionReference' ||
+            name === 'DocumentSnapshot' ||
+            name === 'FirebaseError'
+          ) {
+            return '[Firebase ' + name + ']';
+          }
+        }
+      }
+      return value;
+    };
+  };
+
   methods.forEach(method => {
     const original = console[method];
     if (original) {
@@ -83,20 +114,9 @@ if (typeof window !== 'undefined') {
           }
           if (arg && typeof arg === 'object') {
             try {
-              // Deeply checking constructors to avoid any circular structure in AI Studio's logger
-              if (
-                 arg.constructor && 
-                 (arg.constructor.name === 'Y' || 
-                  arg.constructor.name === 'Ka' || 
-                  arg.constructor.name === 'Firestore' || 
-                  arg.constructor.name === 'FirebaseError')
-              ) {
-                return '[Suppressed Firebase Object]';
-              }
-              // Return a safely shallow-serialized version or suppress to prevent stringify crash
-              return "[Complex Object Suppressed]";
+              return JSON.parse(JSON.stringify(arg, getCircularReplacer()));
             } catch (e) {
-              return "[Complex Object Suppressed]";
+              return "[Circular Object Suppressed]";
             }
           }
           return arg;
@@ -104,8 +124,7 @@ if (typeof window !== 'undefined') {
         try {
           original.apply(console, safeArgs);
         } catch (innerErr) {
-          // If the AI Studio logger or Next.js overlay still throws 
-          // (e.g. converting circular structure to JSON), catch it and log safely
+          // If the AI Studio logger or Next.js overlay still throws, catch it and log safely
         }
       };
     }
