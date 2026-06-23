@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('Sanitize API Error:', error?.message || error);
+    console.error('Sanitize API Error:', error?.message || String(error));
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 }

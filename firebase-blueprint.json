@@ -9,6 +9,7 @@
         "email": { "type": "string", "format": "email" },
         "displayName": { "type": "string" },
         "role": { "type": "string", "enum": ["user", "admin"] },
+        "orderEmailNotifications": { "type": "boolean" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["userId", "email", "role"]
@@ -143,6 +144,10 @@
         "status": { "type": "string", "enum": ["pending", "paid", "fulfilled"] },
         "stripeSessionId": { "type": "string" },
         "downloadSent": { "type": "boolean" },
+        "shippingCarrier": { "type": "string" },
+        "trackingNumber": { "type": "string" },
+        "shippingStatus": { "type": "string", "enum": ["order_placed", "processing", "shipped", "in_transit", "out_for_delivery", "delivered"] },
+        "estimatedDelivery": { "type": "string", "format": "date" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["productId", "amountTotal", "status"]

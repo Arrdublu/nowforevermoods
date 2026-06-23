@@ -83,20 +83,18 @@ if (typeof window !== 'undefined') {
           }
           if (arg && typeof arg === 'object') {
             try {
-              const cache = new WeakSet();
-              const str = JSON.stringify(arg, (key, value) => {
-                if (typeof value === 'object' && value !== null) {
-                  if (cache.has(value)) {
-                    return '[Circular]';
-                  }
-                  cache.add(value);
-                  if (value.constructor && (value.constructor.name === 'Y' || value.constructor.name === 'Ka' || value.constructor.name === 'Firestore')) {
-                    return '[Firestore Object]';
-                  }
-                }
-                return value;
-              });
-              return JSON.parse(str);
+              // Deeply checking constructors to avoid any circular structure in AI Studio's logger
+              if (
+                 arg.constructor && 
+                 (arg.constructor.name === 'Y' || 
+                  arg.constructor.name === 'Ka' || 
+                  arg.constructor.name === 'Firestore' || 
+                  arg.constructor.name === 'FirebaseError')
+              ) {
+                return '[Suppressed Firebase Object]';
+              }
+              // Return a safely shallow-serialized version or suppress to prevent stringify crash
+              return "[Complex Object Suppressed]";
             } catch (e) {
               return "[Complex Object Suppressed]";
             }

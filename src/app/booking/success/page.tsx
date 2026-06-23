@@ -6,6 +6,9 @@ import { onAuthStateChanged, User, GoogleAuthProvider, linkWithPopup } from "fir
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle2, ShieldCheck, Mail } from "lucide-react";
 
+import { RecentReceipt } from "@/components/RecentReceipt";
+import { EmailPreview } from "@/components/EmailPreview";
+
 export default function Page() {
   const auth = getAuthService();
   const [user, setUser] = useState<User | null>(null);
@@ -102,6 +105,12 @@ export default function Page() {
              <p className="text-[9px] text-brand-black uppercase font-bold tracking-widest">Permanent Record Active</p>
           </div>
         )}
+
+        <RecentReceipt type="booking" />
+        
+        <div className="max-w-xl w-full">
+          <EmailPreview type="booking" />
+        </div>
 
         <a 
           href="/" 

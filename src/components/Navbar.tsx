@@ -6,8 +6,8 @@ import { useGeoPricing } from "../hooks/useGeoPricing";
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, User } from "firebase/auth";
 import { Button } from "@/components/ui/button";
 import Link from 'next/link';
-import { motion, useScroll, useTransform } from "motion/react";
-import { User as UserIcon, Menu, X } from "lucide-react";
+import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
+import { User as UserIcon, Menu, X, ChevronDown } from "lucide-react";
 import { collection, doc, getDoc, setDoc } from "firebase/firestore";
 import { getDb, handleFirestoreError } from "../lib/firebase";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -21,6 +21,7 @@ export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isCollectionsDropdownOpen, setIsCollectionsDropdownOpen] = useState(false);
   const { scrollY } = useScroll();
   const pathname = usePathname();
   const isHomePage = pathname === '/';
@@ -100,7 +101,53 @@ export function Navbar() {
       {/* Desktop Nav */}
       <motion.div style={{ color: navTextColor }} className="hidden md:flex items-center gap-8">
         <Link href="/" className={`text-[10px] uppercase tracking-[0.2em] font-bold transition-colors pb-1 border-b ${pathname === '/' ? 'opacity-100 border-current' : 'opacity-80 hover:opacity-100 border-transparent hover:border-current/50'}`}>Portfolio</Link>
-        <Link href="/packages" className={`text-[10px] uppercase tracking-[0.2em] font-bold transition-colors pb-1 border-b ${pathname === '/packages' ? 'opacity-100 border-current' : 'opacity-80 hover:opacity-100 border-transparent hover:border-current/50'}`}>Collections</Link>
+        
+        {/* Collections Dropdown */}
+        <div 
+          className="relative h-full flex items-center group cursor-pointer"
+          onMouseEnter={() => setIsCollectionsDropdownOpen(true)}
+          onMouseLeave={() => setIsCollectionsDropdownOpen(false)}
+        >
+          <button 
+            type="button"
+            className={`flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] font-bold transition-colors pb-1 border-b select-none ${
+              (pathname === '/packages' || pathname === '/balance') ? 'opacity-100 border-current' : 'opacity-80 hover:opacity-100 border-transparent hover:border-current/50'
+            }`}
+          >
+            <span>Collections</span>
+            <ChevronDown size={10} className="opacity-60 transition-transform duration-200 group-hover:rotate-180" />
+          </button>
+          
+          <AnimatePresence>
+            {isCollectionsDropdownOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 8 }}
+                transition={{ duration: 0.15 }}
+                className="absolute left-0 top-full -mt-2 w-48 bg-[#f5f2ed] border border-stone-200/80 shadow-xl py-2 backdrop-blur-md flex flex-col z-50 text-stone-900"
+              >
+                <Link 
+                  href="/packages"
+                  className={`text-[9px] uppercase tracking-[0.2em] font-bold px-4 py-2.5 transition-colors text-left border-l-2 ${
+                    pathname === '/packages' ? 'border-brand-accent text-brand-accent bg-stone-100/40' : 'border-transparent text-stone-700 hover:text-stone-950 hover:bg-stone-100/30'
+                  }`}
+                >
+                  Experience Tiers
+                </Link>
+                <Link 
+                  href="/balance"
+                  className={`text-[9px] uppercase tracking-[0.2em] font-bold px-4 py-2.5 transition-colors text-left border-l-2 ${
+                    pathname === '/balance' ? 'border-brand-accent text-brand-accent bg-stone-100/40' : 'border-transparent text-stone-700 hover:text-stone-950 hover:bg-stone-100/30'
+                  }`}
+                >
+                  Final Balance
+                </Link>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
         <Link href="/boutique" className={`text-[10px] uppercase tracking-[0.2em] font-bold transition-colors pb-1 border-b ${pathname.startsWith('/boutique') ? 'opacity-100 border-current' : 'opacity-80 hover:opacity-100 border-transparent hover:border-current/50'}`}>Boutique</Link>
         <Link href="/beauty-architecture" className={`text-[10px] uppercase tracking-[0.2em] font-bold transition-colors pb-1 border-b ${pathname === '/beauty-architecture' ? 'opacity-100 border-current' : 'opacity-80 hover:opacity-100 border-transparent hover:border-current/50'}`}>Beauty Architecture</Link>
         {isAdmin && (
@@ -149,7 +196,16 @@ export function Navbar() {
           className="absolute top-full left-0 right-0 bg-black/95 backdrop-blur-xl border-b border-zinc-900 flex flex-col p-8 gap-6 md:hidden"
         >
           <Link href="/" onClick={() => setIsMenuOpen(false)} className={`text-xs uppercase tracking-widest ${pathname === '/' ? 'opacity-100 font-bold' : 'opacity-70'}`}>Portfolio</Link>
-          <Link href="/packages" onClick={() => setIsMenuOpen(false)} className={`text-xs uppercase tracking-widest ${pathname === '/packages' ? 'opacity-100 font-bold' : 'opacity-70'}`}>Pricing</Link>
+          
+          {/* Collections Mobile Section */}
+          <div className="flex flex-col gap-2">
+            <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-stone-400">Collections</span>
+            <div className="pl-4 flex flex-col gap-3 mt-1">
+              <Link href="/packages" onClick={() => setIsMenuOpen(false)} className={`text-xs uppercase tracking-widest ${pathname === '/packages' ? 'text-brand-accent font-bold' : 'opacity-70'}`}>Experience Tiers</Link>
+              <Link href="/balance" onClick={() => setIsMenuOpen(false)} className={`text-xs uppercase tracking-widest ${pathname === '/balance' ? 'text-brand-accent font-bold' : 'opacity-70'}`}>Final Balance</Link>
+            </div>
+          </div>
+
           <Link href="/boutique" onClick={() => setIsMenuOpen(false)} className={`text-xs uppercase tracking-widest text-brand-accent ${pathname.startsWith('/boutique') ? 'opacity-100 font-bold' : 'opacity-70'}`}>Boutique</Link>
           <Link href="/beauty-architecture" onClick={() => setIsMenuOpen(false)} className={`text-xs uppercase tracking-widest ${pathname === '/beauty-architecture' ? 'opacity-100 font-bold' : 'opacity-70'}`}>Beauty Architecture</Link>
           {isAdmin && <Link href="/admin" onClick={() => setIsMenuOpen(false)} className={`text-xs uppercase tracking-widest text-emerald-500 font-bold ${pathname === '/admin' ? 'opacity-100' : 'opacity-70'}`}>Admin Dashboard</Link>}

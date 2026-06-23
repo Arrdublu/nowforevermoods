@@ -106,7 +106,7 @@ export async function POST(req: Request) {
                     }
                 }
             } catch (error) {
-                console.error("Failed to sync order payment:", error?.message || error);
+                console.error("Failed to sync order payment:", error?.message || String(error));
             }
         } else if (bookingId) {
             try {
@@ -193,7 +193,7 @@ export async function POST(req: Request) {
                     }
                 }
             } catch (error) {
-                console.error("Failed to sync payment:", error?.message || error);
+                console.error("Failed to sync payment:", error?.message || String(error));
             }
         }
     } else if (event.type === "payment_intent.succeeded") {
@@ -219,7 +219,7 @@ export async function POST(req: Request) {
                     updatedAt: admin.firestore.Timestamp.now(),
                 });
             } catch (error) {
-                console.error("Failed to sync payment intent:", error?.message || error);
+                console.error("Failed to sync payment intent:", error?.message || String(error));
             }
         }
     }
